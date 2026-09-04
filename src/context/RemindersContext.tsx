@@ -36,7 +36,11 @@ export function RemindersProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
       if (stored) {
-        setReminders(JSON.parse(stored));
+        try {
+          setReminders(JSON.parse(stored));
+        } catch {
+          console.warn('Corrupted reminders data in AsyncStorage, using defaults');
+        }
       }
       isLoaded.current = true;
     });

@@ -1,4 +1,4 @@
-export const XP_PER_REMINDER = 50;
+export const XP_PER_REMINDER = 500;
 const XP_BASE = 1000;
 
 export function xpForLevel(level: number): number {

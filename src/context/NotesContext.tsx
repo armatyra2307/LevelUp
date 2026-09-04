@@ -37,7 +37,11 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
       if (stored) {
-        setNotes(JSON.parse(stored));
+        try {
+          setNotes(JSON.parse(stored));
+        } catch {
+          console.warn('Corrupted notes data in AsyncStorage, using defaults');
+        }
       }
       isLoaded.current = true;
     });

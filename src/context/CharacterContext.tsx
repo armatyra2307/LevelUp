@@ -41,8 +41,12 @@ export function CharacterProvider({
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
       if (stored) {
-        const parsed = JSON.parse(stored) as Partial<Character>;
-        setCharacter({ ...DEFAULT_CHARACTER, ...parsed });
+        try {
+          const parsed = JSON.parse(stored) as Partial<Character>;
+          setCharacter((prev) => ({ ...prev, ...parsed }));
+        } catch {
+          console.warn('Corrupted character data in AsyncStorage, using defaults');
+        }
       }
       isLoaded.current = true;
     });

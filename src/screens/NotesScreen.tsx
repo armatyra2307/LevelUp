@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useNotes } from '../context/NotesContext';
 import { colors } from '../theme/colors';
+import { modalStyles } from '../theme/modalStyles';
 import { formatDate } from '../utils/helpers';
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -104,12 +105,12 @@ export default function NotesScreen({ navigation }: Props) {
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Новая заметка</Text>
+        <View style={modalStyles.backdrop}>
+          <View style={modalStyles.card}>
+            <Text style={modalStyles.title}>Новая заметка</Text>
 
             <TextInput
-              style={styles.input}
+              style={modalStyles.input}
               placeholder="Заголовок"
               placeholderTextColor={colors.textSecondary}
               value={title}
@@ -118,7 +119,7 @@ export default function NotesScreen({ navigation }: Props) {
             />
 
             <TextInput
-              style={[styles.input, styles.bodyInput]}
+              style={[modalStyles.input, styles.bodyInput]}
               placeholder="Текст заметки"
               placeholderTextColor={colors.textSecondary}
               value={body}
@@ -128,20 +129,20 @@ export default function NotesScreen({ navigation }: Props) {
 
             <Pressable
               style={({ pressed }) => [
-                styles.saveButton,
-                !canSave && styles.saveButtonDisabled,
-                pressed && canSave && styles.cardPressed,
+                modalStyles.saveButton,
+                !canSave && modalStyles.saveButtonDisabled,
+                pressed && canSave && modalStyles.buttonPressed,
               ]}
               disabled={!canSave}
               onPress={saveNote}
             >
-              <Text style={styles.saveButtonText}>Сохранить</Text>
+              <Text style={modalStyles.saveButtonText}>Сохранить</Text>
             </Pressable>
 
             <Pressable
               style={({ pressed }) => [
-                styles.cancelButton,
-                pressed && styles.cardPressed,
+                modalStyles.cancelButton,
+                pressed && modalStyles.buttonPressed,
               ]}
               onPress={() => {
                 setTitle('');
@@ -149,7 +150,7 @@ export default function NotesScreen({ navigation }: Props) {
                 setModalVisible(false);
               }}
             >
-              <Text style={styles.cancelText}>Отмена</Text>
+              <Text style={modalStyles.cancelText}>Отмена</Text>
             </Pressable>
           </View>
         </View>
@@ -229,67 +230,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 340,
-    backgroundColor: colors.card,
-    borderColor: colors.borderGlow,
-    borderWidth: 1.5,
-    borderRadius: 18,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 14,
-    textAlign: 'center',
-  },
-  input: {
-    backgroundColor: colors.background,
-    borderColor: colors.cardBorder,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: colors.text,
-    fontSize: 15,
-    marginBottom: 10,
-  },
   bodyInput: {
     minHeight: 100,
     textAlignVertical: 'top',
-  },
-  saveButton: {
-    marginTop: 6,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  saveButtonDisabled: {
-    backgroundColor: colors.cardBorder,
-  },
-  saveButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    marginTop: 10,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  cancelText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    fontWeight: '600',
   },
 });

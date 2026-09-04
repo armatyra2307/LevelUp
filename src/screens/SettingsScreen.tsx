@@ -16,6 +16,7 @@ import { useCharacter } from '../context/CharacterContext';
 import { useNotes } from '../context/NotesContext';
 import { useReminders } from '../context/RemindersContext';
 import { colors } from '../theme/colors';
+import { modalStyles } from '../theme/modalStyles';
 import { DEFAULT_AVATAR_URI } from '../utils/constants';
 import { calculateLevel } from '../utils/xp';
 
@@ -186,12 +187,12 @@ export default function SettingsScreen({ navigation }: Props) {
         animationType="fade"
         onRequestClose={() => setNameModalVisible(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Сменить имя</Text>
+        <View style={modalStyles.backdrop}>
+          <View style={modalStyles.card}>
+            <Text style={modalStyles.title}>Сменить имя</Text>
 
             <TextInput
-              style={styles.input}
+              style={modalStyles.input}
               placeholder="Имя персонажа"
               placeholderTextColor={colors.textSecondary}
               value={nameDraft}
@@ -201,24 +202,24 @@ export default function SettingsScreen({ navigation }: Props) {
 
             <Pressable
               style={({ pressed }) => [
-                styles.saveButton,
-                !canSaveName && styles.saveButtonDisabled,
-                pressed && canSaveName && styles.buttonPressed,
+                modalStyles.saveButton,
+                !canSaveName && modalStyles.saveButtonDisabled,
+                pressed && canSaveName && modalStyles.buttonPressed,
               ]}
               disabled={!canSaveName}
               onPress={saveName}
             >
-              <Text style={styles.saveButtonText}>Сохранить</Text>
+              <Text style={modalStyles.saveButtonText}>Сохранить</Text>
             </Pressable>
 
             <Pressable
               style={({ pressed }) => [
-                styles.cancelButton,
-                pressed && styles.buttonPressed,
+                modalStyles.cancelButton,
+                pressed && modalStyles.buttonPressed,
               ]}
               onPress={() => setNameModalVisible(false)}
             >
-              <Text style={styles.cancelText}>Отмена</Text>
+              <Text style={modalStyles.cancelText}>Отмена</Text>
             </Pressable>
           </View>
         </View>
@@ -320,82 +321,5 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 15,
     fontWeight: '600',
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 340,
-    backgroundColor: colors.card,
-    borderColor: colors.borderGlow,
-    borderWidth: 1.5,
-    borderRadius: 18,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 14,
-    textAlign: 'center',
-  },
-  input: {
-    backgroundColor: colors.background,
-    borderColor: colors.cardBorder,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: colors.text,
-    fontSize: 15,
-    marginBottom: 10,
-  },
-  saveButton: {
-    marginTop: 6,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  saveButtonDisabled: {
-    backgroundColor: colors.cardBorder,
-  },
-  saveButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    marginTop: 10,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  cancelText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  avatarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderColor: colors.cardBorder,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 10,
-  },
-  avatarRowSelected: {
-    borderColor: colors.accent,
-  },
-  avatarLabel: {
-    flex: 1,
-    fontSize: 15,
-    color: colors.text,
   },
 });

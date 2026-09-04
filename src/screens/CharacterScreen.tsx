@@ -12,33 +12,18 @@ import {
 
 import { useCharacter } from '../context/CharacterContext';
 import { colors } from '../theme/colors';
+import { modalStyles } from '../theme/modalStyles';
 import { DEFAULT_AVATAR_URI } from '../utils/constants';
-import { calculateLevel, xpCurrentToNext, xpIntoLevel } from '../utils/xp';
+import { STATS } from '../utils/stats';
+import { useCharacterXp } from '../utils/useCharacterXp';
 
-import type { StatKey } from '../types';
-
-type Stat = {
-  key: StatKey;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-};
-
-
-
-const STATS: Stat[] = [
-  { key: 'strength', label: 'Сила', icon: 'fitness' },
-  { key: 'intelligence', label: 'Интеллект', icon: 'bulb' },
-  { key: 'speed', label: 'Скорость', icon: 'speedometer' },
-];
+import type { Stat } from '../utils/stats';
 
 export default function CharacterScreen() {
   const { character, spendStatPoint } = useCharacter();
   const [activeStat, setActiveStat] = useState<Stat | null>(null);
 
-  const level = calculateLevel(character.xp);
-  const xpIntoLevelValue = xpIntoLevel(character.xp);
-  const xpToNext = xpCurrentToNext(character.xp);
-  const xpPercent = Math.round((xpIntoLevelValue / xpToNext) * 100);
+  const { level, xpIntoLevelValue, xpToNext, xpPercent } = useCharacterXp();
 
   return (
     <ScrollView
@@ -110,8 +95,8 @@ export default function CharacterScreen() {
         animationType="fade"
         onRequestClose={() => setActiveStat(null)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
+        <View style={modalStyles.backdrop}>
+          <View style={modalStyles.cardCentered}>
             {activeStat && (
               <>
                 <View style={styles.modalIconWrap}>
@@ -158,12 +143,12 @@ export default function CharacterScreen() {
 
                 <Pressable
                   style={({ pressed }) => [
-                    styles.cancelButton,
-                    pressed && styles.buttonPressed,
+                    modalStyles.cancelButton,
+                    pressed && modalStyles.buttonPressed,
                   ]}
                   onPress={() => setActiveStat(null)}
                 >
-                  <Text style={styles.cancelText}>Отмена</Text>
+                  <Text style={modalStyles.cancelText}>Отмена</Text>
                 </Pressable>
               </>
             )}
@@ -303,23 +288,6 @@ const styles = StyleSheet.create({
   buttonPressed: {
     opacity: 0.6,
   },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 340,
-    backgroundColor: colors.card,
-    borderColor: colors.borderGlow,
-    borderWidth: 1.5,
-    borderRadius: 18,
-    padding: 20,
-    alignItems: 'center',
-  },
   modalIconWrap: {
     width: 56,
     height: 56,
@@ -360,17 +328,6 @@ const styles = StyleSheet.create({
   confirmText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    marginTop: 10,
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  cancelText: {
-    color: colors.textSecondary,
-    fontSize: 14,
     fontWeight: '600',
   },
 });

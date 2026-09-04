@@ -13,7 +13,8 @@ import { useNotes } from '../context/NotesContext';
 import { useReminders } from '../context/RemindersContext';
 import { colors } from '../theme/colors';
 import { DEFAULT_AVATAR_URI } from '../utils/constants';
-import { calculateLevel, xpCurrentToNext, xpIntoLevel } from '../utils/xp';
+import { STATS } from '../utils/stats';
+import { useCharacterXp } from '../utils/useCharacterXp';
 
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -27,18 +28,6 @@ type Props = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, 'Home'>,
   NativeStackScreenProps<RootStackParamList>
 >;
-
-const STAT_LABELS: Record<StatKey, string> = {
-  strength: 'Сила',
-  intelligence: 'Интеллект',
-  speed: 'Скорость',
-};
-
-const STAT_ICONS: Record<StatKey, keyof typeof Ionicons.glyphMap> = {
-  strength: 'fitness',
-  intelligence: 'bulb',
-  speed: 'speedometer',
-};
 
 type StatItemProps = {
   label: string;
@@ -64,19 +53,14 @@ export default function HomeScreen({ navigation }: Props) {
   const { notes } = useNotes();
   const { reminders, toggleReminder } = useReminders();
 
-  const level = calculateLevel(character.xp);
-  const xpIntoLevelValue = xpIntoLevel(character.xp);
-  const xpToNext = xpCurrentToNext(character.xp);
-  const xpPercent = Math.round((xpIntoLevelValue / xpToNext) * 100);
+  const { level, xpIntoLevelValue, xpToNext, xpPercent } = useCharacterXp();
 
   const recentNotes = notes.slice(0, 2);
   const recentReminders = reminders.slice(0, 3);
 
-  const statEntries = (Object.keys(character.stats) as StatKey[]).map((key) => ({
-    key,
-    label: STAT_LABELS[key],
-    value: character.stats[key],
-    icon: STAT_ICONS[key],
+  const statEntries = STATS.map((stat) => ({
+    ...stat,
+    value: character.stats[stat.key],
   }));
 
   return (

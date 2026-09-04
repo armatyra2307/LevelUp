@@ -11,9 +11,21 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { TimeWheelPicker } from '../components/TimeWheelPicker';
 import { useReminders } from '../context/RemindersContext';
 import { colors } from '../theme/colors';
+import { modalStyles } from '../theme/modalStyles';
 import { XP_PER_REMINDER } from '../utils/xp';
+
+function getDefaultTime(): string {
+  const now = new Date();
+  const minutes = Math.round(now.getMinutes() / 5) * 5;
+  const safeMinutes = minutes === 60 ? 0 : minutes;
+  const safeHour = minutes === 60 ? (now.getHours() + 1) % 24 : now.getHours();
+  return `${safeHour.toString().padStart(2, '0')}:${safeMinutes
+    .toString()
+    .padStart(2, '0')}`;
+}
 
 export default function RemindersScreen() {
   const insets = useSafeAreaInsets();
@@ -21,16 +33,28 @@ export default function RemindersScreen() {
     useReminders();
   const [modalVisible, setModalVisible] = useState(false);
   const [label, setLabel] = useState('');
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState(() => getDefaultTime());
+  const [pickerKey, setPickerKey] = useState(0);
 
   const canSave = label.trim().length > 0 && time.trim().length > 0;
+
+  const openModal = () => {
+    setLabel('');
+    setTime(getDefaultTime());
+    setPickerKey((key) => key + 1);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
   const saveReminder = () => {
     if (!canSave) return;
     addReminder(label.trim(), time.trim());
     setLabel('');
-    setTime('');
-    setModalVisible(false);
+    setTime(getDefaultTime());
+    closeModal();
   };
 
   return (
@@ -115,7 +139,7 @@ export default function RemindersScreen() {
           { bottom: Math.max(24, insets.bottom + 12) },
           pressed && styles.cardPressed,
         ]}
-        onPress={() => setModalVisible(true)}
+        onPress={() => openModal()}
       >
         <Ionicons name="add" size={22} color="#FFFFFF" />
         <Text style={styles.addButtonText}>Новая задача</Text>
@@ -127,12 +151,12 @@ export default function RemindersScreen() {
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Новая задача</Text>
+        <View style={modalStyles.backdrop}>
+          <View style={modalStyles.card}>
+            <Text style={modalStyles.title}>Новая задача</Text>
 
             <TextInput
-              style={styles.input}
+              style={modalStyles.input}
               placeholder="Название"
               placeholderTextColor={colors.textSecondary}
               value={label}
@@ -140,14 +164,18 @@ export default function RemindersScreen() {
               maxLength={40}
             />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Время, например 09:00"
-              placeholderTextColor={colors.textSecondary}
-              value={time}
-              onChangeText={setTime}
-              maxLength={5}
-            />
+            <Text style={styles.inputLabel}>Время</Text>
+            <View style={styles.timePickerRow}>
+              <TimeWheelPicker
+                key={pickerKey}
+                initialHour={parseInt(time.split(':')[0] || '9', 10)}
+                initialMinute={parseInt(time.split(':')[1] || '0', 10)}
+                onChange={setTime}
+              />
+              <View style={styles.timeSummary}>
+                <Text style={styles.timeSummaryText}>{time}</Text>
+              </View>
+            </View>
 
             <Text style={styles.hint}>
               За выполнение вы получите +{XP_PER_REMINDER} XP
@@ -155,28 +183,26 @@ export default function RemindersScreen() {
 
             <Pressable
               style={({ pressed }) => [
-                styles.saveButton,
-                !canSave && styles.saveButtonDisabled,
-                pressed && canSave && styles.cardPressed,
+                modalStyles.saveButton,
+                !canSave && modalStyles.saveButtonDisabled,
+                pressed && canSave && modalStyles.buttonPressed,
               ]}
               disabled={!canSave}
               onPress={saveReminder}
             >
-              <Text style={styles.saveButtonText}>Сохранить</Text>
+              <Text style={modalStyles.saveButtonText}>Сохранить</Text>
             </Pressable>
 
             <Pressable
               style={({ pressed }) => [
-                styles.cancelButton,
-                pressed && styles.cardPressed,
+                modalStyles.cancelButton,
+                pressed && modalStyles.buttonPressed,
               ]}
               onPress={() => {
-                setLabel('');
-                setTime('');
-                setModalVisible(false);
+                closeModal();
               }}
             >
-              <Text style={styles.cancelText}>Отмена</Text>
+              <Text style={modalStyles.cancelText}>Отмена</Text>
             </Pressable>
           </View>
         </View>
@@ -285,68 +311,29 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    marginBottom: 8,
+  },
+  timePickerRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 340,
-    backgroundColor: colors.card,
-    borderColor: colors.borderGlow,
-    borderWidth: 1.5,
-    borderRadius: 18,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 14,
-    textAlign: 'center',
-  },
-  input: {
-    backgroundColor: colors.background,
-    borderColor: colors.cardBorder,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: colors.text,
-    fontSize: 15,
+    gap: 16,
     marginBottom: 10,
+  },
+  timeSummary: {
+  },
+  timeSummaryText: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
   },
   hint: {
     fontSize: 12,
     color: colors.textSecondary,
     marginBottom: 10,
-  },
-  saveButton: {
-    marginTop: 6,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  saveButtonDisabled: {
-    backgroundColor: colors.cardBorder,
-  },
-  saveButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    marginTop: 10,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  cancelText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    fontWeight: '600',
   },
 });
